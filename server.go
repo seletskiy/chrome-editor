@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -9,9 +10,21 @@ import (
 	"os/exec"
 )
 
-var listen = flag.String("l", "localhost:8888", "addr to listen to")
+var listen = flag.String("l", "localhost:8888", "address to listen on")
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr,
+			"Usage: %s [-l] [<editor> [<editor-args> ...]]\n\n",
+			os.Args[0])
+		fmt.Fprintln(os.Stderr, "  <editor>=\"gvim\": binary that will be "+
+			"started to edit textarea contents")
+		fmt.Fprintln(os.Stderr, "  <editor-args>: any editor args that "+
+			"should be given prior to filename")
+		fmt.Fprintln(os.Stderr, "")
+		flag.PrintDefaults()
+	}
+
 	flag.Parse()
 	http.HandleFunc("/", editHandler)
 	log.Println("starting server on", *listen)

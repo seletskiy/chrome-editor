@@ -10,7 +10,6 @@ import (
 )
 
 var listen = flag.String("l", "localhost:8888", "addr to listen to")
-var editor = flag.String("e", "gvim", "editor to launch")
 
 func main() {
 	flag.Parse()
@@ -42,7 +41,16 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 
 	f.Write(body)
 
-	cmd := exec.Command(flag.Args()[0], append(flag.Args()[1:], f.Name())...)
+	editor := "gvim"
+	args := []string{}
+	if flag.NArg() > 0 {
+		editor = flag.Arg(0)
+	}
+	if flag.NArg() > 1 {
+		args = flag.Args()[1:]
+	}
+
+	cmd := exec.Command(editor, append(args, f.Name())...)
 	log.Printf("launching editor as %s %#v", cmd.Path, cmd.Args)
 
 	out, err := cmd.CombinedOutput()
